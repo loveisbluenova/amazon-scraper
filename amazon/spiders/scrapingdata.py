@@ -3,9 +3,9 @@ import scrapy
 from scrapy.item import Item, Field
 from lxml.html import fromstring
 import requests
-import json
 
 
+# Product Item
 class SiteProductItem(Item):
     asin = Field()
     product_name = Field()
@@ -28,6 +28,7 @@ class AmazonScraper (scrapy.Spider):
                                 "AppleWebKit/537.36 (KHTML, like Gecko) "
                                 "Chrome/57.0.2987.133 Safari/537.36"}
 
+    # start requests
     def start_requests(self):
         yield Request(url=self.START_URL + self.asin,
                       callback=self.parse_page,
@@ -35,10 +36,13 @@ class AmazonScraper (scrapy.Spider):
                       dont_filter=True
                       )
 
+    # extract data
     def parse_page(self, response):
 
+        # extract product name
         product_name = response.xpath('//span[@id="productTitle"]/text()')[0].extract().strip()
 
+        # extract review stars
         review_stars = ''
         pre_review_stars = response.xpath(
             '//div[@id="averageCustomerReviews_feature_div"]/div[@id="averageCustomerReviews"]'
@@ -46,11 +50,13 @@ class AmazonScraper (scrapy.Spider):
         if pre_review_stars:
             review_stars = pre_review_stars[0]
 
+        # extract review text
         customer_review_text = ''
         pre_customer_review_text = response.xpath('//span[@id="acrCustomerReviewText"]/text()').extract()
         if pre_customer_review_text:
             customer_review_text = pre_customer_review_text[0]
 
+        # extract sales status, price, seller
         sales_status = 'Inactive'
         price = ''
         seller = ''
@@ -73,6 +79,7 @@ class AmazonScraper (scrapy.Spider):
             if seller_info_list:
                 seller = seller_info_list[0]
 
+        # yield extracted data as result file
         product = SiteProductItem()
         product['asin'] = self.asin
         product['product_name'] = product_name
