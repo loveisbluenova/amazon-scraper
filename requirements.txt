@@ -15,7 +15,7 @@ dockerpty==0.4.1
 docopt==0.6.2
 docutils==0.14
 duplicity==0.7.6
-ecdsa==0.13
+ecdsa==0.13.3
 enum34==1.1.2
 groestlcoin-hash==1.0.1
 groestlcoin-subsidy==1.0
